@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jupiter</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/jupiter.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffaa00;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #ffa500;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Jupiter</h1>
+        <h2>المشتري</h2>
+        <ul>
+            <p>⭐ أكبر كواكب المجموعة الشمسية، بحجم يعادل 1300 كوكب بحجم الأرض!</p>
+            <p>🌪 يتميز ببقعة حمراء عملاقة هي عبارة عن عاصفة استمرت لمئات السنين.</p>
+            <p>🌌 يحتوي على أكثر من 79 قمرًا، من بينها "آيو" و"غانيميد".</p>
+            <p>🔭 يعتبر كوكبًا غازيًا، حيث يتكون أساسًا من الهيدروجين والهيليوم.</p>
+            <p>🌠 حقله المغناطيسي قوي جدًا، وهو الأكبر بين كواكب المجموعة الشمسية.</p>
+            <p>🪐 عدد الأقمار: 79.</p>
+            <p>💫 عدد الحلقات: 4.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Textures for Jupiter
+        const textureLoader = new THREE.TextureLoader();
+        const colorTexture = textureLoader.load('https://raw.githubusercontent.com/ankitjha2603/solar-system3D/refs/heads/main/image/jupiter.jpg'); // Jupiter color map
+        const normalTexture = textureLoader.load('https://www.shutterstock.com/image-illustration/jupiter-planet-normal-map-3d-260nw-1959886789.jpg'); // Jupiter normal map
+        const specularTexture = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlNUb2axNCmMvABcSP83DrjSAsjSKyKD83vw&s'); // Jupiter specular map
+
+        // Jupiter geometry and material
+        const jupiterGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const jupiterMaterial = new THREE.MeshPhongMaterial({
+            map: colorTexture,
+            normalMap: normalTexture,
+            specularMap: specularTexture,
+            specular: new THREE.Color('black'),
+            shininess: 0.1
+        });
+
+        const jupiterMesh = new THREE.Mesh(jupiterGeometry, jupiterMaterial);
+        scene.add(jupiterMesh);
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 0.1);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Atmospheric scattering effect for Jupiter (optional)
+        const atmosphereGeometry = new THREE.SphereGeometry(5.2, 50, 50);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.8, 0.5, 0.2, 1.0) * intensity; // Jupiter-like atmosphere (orange)
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+
+        const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphereMesh);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Bright point light
+        pointLight.position.set(200, 200, 200);
+        scene.add(pointLight);
+
+        // Camera Position
+        camera.position.z = 15;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Jupiter
+            jupiterMesh.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Jupiter",
+                subtitle: "المشتري",
+                info: [
+                    "⭐ The largest planet in the solar system, with a size equivalent to 1300 Earths!",
+                    "🌪 Features a giant red spot, a storm that has lasted for hundreds of years.",
+                    "🌌 Has more than 79 moons, including 'Io' and 'Ganymede'.",
+                    "🔭 Considered a gas giant, primarily composed of hydrogen and helium.",
+                    "🌠 Its magnetic field is very strong, the largest among the planets in the solar system.",
+                    "🪐 Number of moons: 79.",
+                    "💫 Number of rings: 4."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "المشتري",
+                subtitle: "Jupiter",
+                info: [
+                    "⭐ أكبر كواكب المجموعة الشمسية، بحجم يعادل 1300 كوكب بحجم الأرض!",
+                    "🌪 يتميز ببقعة حمراء عملاقة هي عبارة عن عاصفة استمرت لمئات السنين.",
+                    "🌌 يحتوي على أكثر من 79 قمرًا، من بينها 'آيو' و'غانيميد'.",
+                    "🔭 يعتبر كوكبًا غازيًا، حيث يتكون أساسًا من الهيدروجين والهيليوم.",
+                    "🌠 حقله المغناطيسي قوي جدًا، وهو الأكبر بين كواكب المجموعة الشمسية.",
+                    "🪐 عدد الأقمار: 79.",
+                    "💫 عدد الحلقات: 4."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Júpiter",
+                subtitle: "المشتري",
+                info: [
+                    "⭐ El planeta más grande del sistema solar, con un tamaño equivalente a 1300 Tierras!",
+                    "🌪 Tiene una gran mancha roja, una tormenta que ha durado cientos de años.",
+                    "🌌 Tiene más de 79 lunas, incluyendo 'Io' y 'Ganímedes'.",
+                    "🔭 Considerado un gigante gaseoso, compuesto principalmente de hidrógeno y helio.",
+                    "🌠 Su campo magnético es muy fuerte, el más grande entre los planetas del sistema solar.",
+                    "🪐 Número de lunas: 79.",
+                    "💫 Número de anillos: 4."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Jupiter",
+                subtitle: "المشتري",
+                info: [
+                    "⭐ La plus grande planète du système solaire, avec une taille équivalente à 1300 Terres!",
+                    "🌪 Présente une grande tache rouge, une tempête qui dure depuis des centaines d'années.",
+                    "🌌 Possède plus de 79 lunes, dont 'Io' et 'Ganymède'.",
+                    "🔭 Considérée comme une géante gazeuse, principalement composée d'hydrogène et d'hélium.",
+                    "🌠 Son champ magnétique est très fort, le plus grand parmi les planètes du système solaire.",
+                    "🪐 Nombre de lunes: 79.",
+                    "💫 Nombre d'anneaux: 4."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "木星",
+                subtitle: "المشتري",
+                info: [
+                    "⭐ 太阳系中最大的行星，大小相当于1300个地球！",
+                    "🌪 有一个大红斑，一场持续了数百年的风暴。",
+                    "🌌 有超过79颗卫星，包括'木卫一'和'木卫三'。",
+                    "🔭 被认为是气态巨行星，主要由氢和氦组成。",
+                    "🌠 它的磁场非常强，是太阳系行星中最大的。",
+                    "🪐 卫星数量: 79。",
+                    "💫 环数量: 4。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

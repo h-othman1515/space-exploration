@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earth</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            cursor: url('cursors/earth.cur'), auto;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #00aaff;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #00ddff;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+
+        #moonName {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+            background-color: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .moon-button {
+            position: absolute;
+            top: 10px;
+            right: 150px;
+            /* تعديل الموضع ليكون بجانب زر اللغة */
+            z-index: 1000;
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        .moon-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Earth</h1>
+        <h2>الأرض</h2>
+        <ul>
+            <p>🌍 الكوكب الوحيد المعروف بوجود الحياة على سطحه.</p>
+            <p>💧 يحتوي على مياه تغطي 71% من سطحه، وهو أساسي للحياة.</p>
+            <p>🌫 غلاف جوي غني بالأكسجين والنيتروجين، مما يدعم الحياة.</p>
+            <p>🌎 يدور حول نفسه كل 24 ساعة، مما يشكل الليل والنهار.</p>
+            <p>🌌 يتمتع بتنوع بيئي مذهل، من الصحاري إلى الغابات والمحيطات.</p>
+            <p>🪐 عدد الأقمار: 1 (القمر).</p>
+            <p>💫 عدد الحلقات: 0.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <!-- زر الانتقال إلى صفحة القمر -->
+    <button class="moon-button" onclick="sessionStorage.setItem('nextPage', 'moon.html'); window.location.href='loading.html'">Go to Moon</button>
+
+    <div id="moonName"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Textures
+        const textureLoader = new THREE.TextureLoader();
+        const colorTexture = textureLoader.load('https://i.sstatic.net/LqQZu.jpg');
+        const normalTexture = textureLoader.load('https://i.sstatic.net/9dbAc.jpg');
+        const specularTexture = textureLoader.load('https://i.sstatic.net/yasT0.jpg');
+        const cloudTexture = textureLoader.load('https://i.sstatic.net/B3c7G.jpg');
+
+        // Earth geometry and material
+        const earthGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const earthMaterial = new THREE.MeshPhongMaterial({
+            map: colorTexture,
+            normalMap: normalTexture,
+            specularMap: specularTexture,
+            specular: new THREE.Color('grey'),
+            shininess: 10
+        });
+
+        const earthMesh = new THREE.Mesh(earthGeometry, earthMaterial);
+        earthMesh.position.x = 10; // تحريك الأرض إلى اليمين
+        scene.add(earthMesh);
+
+        // Cloud geometry and material
+        const cloudGeometry = new THREE.SphereGeometry(5.1, 50, 50);
+        const cloudMaterial = new THREE.MeshPhongMaterial({
+            map: cloudTexture,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+        cloudMesh.position.x = 10; // تحريك السحب إلى اليمين
+        scene.add(cloudMesh);
+
+        // Moon
+        const moonGeometry = new THREE.SphereGeometry(1, 32, 32);
+        const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+        const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+        moon.position.set(20, 0, 0); // تحريك القمر إلى اليمين
+        scene.add(moon);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Camera position
+        camera.position.z = 15;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Earth and clouds
+            earthMesh.rotation.y += 0.001;
+            cloudMesh.rotation.y += 0.0015;
+
+            // Move Moon around Earth
+            const moonAngle = Date.now() * 0.0005; // تقليل سرعة دوران القمر
+            moon.position.x = 10 + Math.cos(moonAngle) * 10; // مسافة القمر عن الأرض
+            moon.position.z = Math.sin(moonAngle) * 10;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Earth",
+                subtitle: "الأرض",
+                info: [
+                    "🌍 The only planet known to support life.",
+                    "💧 Contains water covering 71% of its surface, essential for life.",
+                    "🌫 Rich in oxygen and nitrogen atmosphere, supporting life.",
+                    "🌎 Rotates on its axis every 24 hours, creating day and night.",
+                    "🌌 Features a stunning environmental diversity, from deserts to forests and oceans.",
+                    "🪐 Number of moons: 1 (The Moon).",
+                    "💫 Number of rings: 0."
+                ],
+                backButton: "Back to Solar System",
+                moonName: "Moon"
+            },
+            ar: {
+                title: "الأرض",
+                subtitle: "Earth",
+                info: [
+                    "🌍 الكوكب الوحيد المعروف بوجود الحياة على سطحه.",
+                    "💧 يحتوي على مياه تغطي 71% من سطحه، وهو أساسي للحياة.",
+                    "🌫 غلاف جوي غني بالأكسجين والنيتروجين، مما يدعم الحياة.",
+                    "🌎 يدور حول نفسه كل 24 ساعة، مما يشكل الليل والنهار.",
+                    "🌌 يتمتع بتنوع بيئي مذهل، من الصحاري إلى الغابات والمحيطات.",
+                    "🪐 عدد الأقمار: 1 (القمر).",
+                    "💫 عدد الحلقات: 0."
+                ],
+                backButton: "العودة إلى النظام الشمسي",
+                moonName: "القمر"
+            },
+            es: {
+                title: "Tierra",
+                subtitle: "الأرض",
+                info: [
+                    "🌍 El único planeta conocido que alberga vida.",
+                    "💧 Contiene agua que cubre el 71% de su superficie, esencial para la vida.",
+                    "🌫 Atmósfera rica en oxígeno y nitrógeno, que sustenta la vida.",
+                    "🌎 Gira sobre su eje cada 24 horas, creando el día y la noche.",
+                    "🌌 Presenta una diversidad ambiental impresionante, desde desiertos hasta bosques y océanos.",
+                    "🪐 Número de lunas: 1 (La Luna).",
+                    "💫 Número de anillos: 0."
+                ],
+                backButton: "Volver al Sistema Solar",
+                moonName: "Luna"
+            },
+            fr: {
+                title: "Terre",
+                subtitle: "الأرض",
+                info: [
+                    "🌍 La seule planète connue pour abriter la vie.",
+                    "💧 Contient de l'eau couvrant 71% de sa surface, essentielle à la vie.",
+                    "🌫 Atmosphère riche en oxygène et en azote, soutenant la vie.",
+                    "🌎 Tourne sur son axe toutes les 24 heures, créant le jour et la nuit.",
+                    "🌌 Présente une diversité environnementale étonnante, des déserts aux forêts et océans.",
+                    "🪐 Nombre de lunes: 1 (La Lune).",
+                    "💫 Nombre d'anneaux: 0."
+                ],
+                backButton: "Retour au Système Solaire",
+                moonName: "Lune"
+            },
+            zh: {
+                title: "地球",
+                subtitle: "الأرض",
+                info: [
+                    "🌍 唯一已知支持生命的行星。",
+                    "💧 含有覆盖其表面71%的水，对生命至关重要。",
+                    "🌫 富含氧气和氮气的大气，支持生命。",
+                    "🌎 每24小时自转一次，形成昼夜。",
+                    "🌌 拥有令人惊叹的环境多样性，从沙漠到森林和海洋。",
+                    "🪐 卫星数量: 1 (月球)。",
+                    "💫 环数量: 0。"
+                ],
+                backButton: "返回太阳系",
+                moonName: "月球"
+            }
+        };
+
+        let currentLanguage = 'ar'; // Default language is Arabic
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+
+            // Change text alignment based on language
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+
+        // Raycaster للتأشير والنقر
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        window.addEventListener('mousemove', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([moon]);
+
+            if (intersects.length > 0) {
+                document.getElementById('moonName').innerText = translations[currentLanguage].moonName;
+                document.getElementById('moonName').style.display = 'block';
+                document.getElementById('moonName').style.left = `${event.clientX + 10}px`;
+                document.getElementById('moonName').style.top = `${event.clientY + 10}px`;
+            } else {
+                document.getElementById('moonName').style.display = 'none';
+            }
+        });
+
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([moon]);
+
+            if (intersects.length > 0) {
+                window.location.href = 'moon.html'; // الانتقال إلى صفحة القمر
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sun</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/mars.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #ffcc33;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            /* لون النص */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            /* لون خلفية العناصر */
+            color: white;
+            /* لون النص */
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Sun</h1>
+        <h2>الشمس</h2>
+        <ul>
+            <p>☀️ النجم المركزي للمجموعة الشمسية.</p>
+            <p>🌞 مصدر الطاقة والضوء لكل الكواكب.</p>
+            <p>🧪 يتكون أساسًا من الهيدروجين والهليوم.</p>
+            <p>🪐 عدد الأقمار: 0.</p>
+            <p>💫 عدد الحلقات: 0.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Sun Textures
+        const textureLoader = new THREE.TextureLoader();
+        const sunTexture = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRE7q_NoC49WiU1JYZAZdMEHD5sl_Bli3TiOw&s'); // Sun texture
+
+        // Sun Geometry and Material
+        const sunGeometry = new THREE.SphereGeometry(8, 64, 64);
+        const sunMaterial = new THREE.MeshStandardMaterial({
+            map: sunTexture, // Keep the texture
+            color: 0xff4500, // Darker and more intense orange color
+            emissive: 0xff4500, // Darker orange glow
+            emissiveIntensity: 2, // Intensity of the glow
+        });
+
+        const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+        scene.add(sunMesh);
+
+        // Glow Effect (Thin and Lighter Glow Around the Sun)
+        const glowGeometry = new THREE.SphereGeometry(8.5, 64, 64); // Slightly larger than the Sun (thin glow)
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff8c00, // Lighter orange color for the glow
+            transparent: true,
+            opacity: 0.2, // Low opacity for a subtle glow
+            blending: THREE.AdditiveBlending, // Additive blending for a glowing effect
+        });
+
+        const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+        scene.add(glowMesh);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Bright point light
+        pointLight.position.set(200, 200, 200);
+        scene.add(pointLight);
+
+        // Camera Position
+        camera.position.z = 30; // Adjust camera distance
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate the Sun
+            sunMesh.rotation.y += 0.005;
+
+            // Rotate the glow effect with the Sun
+            glowMesh.rotation.y += 0.005;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Sun",
+                subtitle: "الشمس",
+                info: [
+                    "☀️ The central star of the solar system.",
+                    "🌞 The source of energy and light for all planets.",
+                    "🧪 Composed mainly of hydrogen and helium.",
+                    "🪐 Number of moons: 0.",
+                    "💫 Number of rings: 0."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "الشمس",
+                subtitle: "Sun",
+                info: [
+                    "☀️ النجم المركزي للمجموعة الشمسية.",
+                    "🌞 مصدر الطاقة والضوء لكل الكواكب.",
+                    "🧪 يتكون أساسًا من الهيدروجين والهليوم.",
+                    "🪐 عدد الأقمار: 0.",
+                    "💫 عدد الحلقات: 0."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Sol",
+                subtitle: "الشمس",
+                info: [
+                    "☀️ La estrella central del sistema solar.",
+                    "🌞 La fuente de energía y luz para todos los planetas.",
+                    "🧪 Compuesto principalmente de hidrógeno y helio.",
+                    "🪐 Número de lunas: 0.",
+                    "💫 Número de anillos: 0."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Soleil",
+                subtitle: "الشمس",
+                info: [
+                    "☀️ L'étoile centrale du système solaire.",
+                    "🌞 La source d'énergie et de lumière pour toutes les planètes.",
+                    "🧪 Composé principalement d'hydrogène et d'hélium.",
+                    "🪐 Nombre de lunes: 0.",
+                    "💫 Nombre d'anneaux: 0."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "太阳",
+                subtitle: "الشمس",
+                info: [
+                    "☀️ 太阳系的中心恒星。",
+                    "🌞 所有行星的能量和光源。",
+                    "🧪 主要由氢和氦组成。",
+                    "🪐 卫星数量: 0。",
+                    "💫 环数量: 0。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

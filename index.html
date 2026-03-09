@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/starship1.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .title {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .info {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        #backButton {
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+
+        #backButton:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 70px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .cursor-selector {
+            position: absolute;
+            top: 120px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .cursor-selector label {
+            font-size: 16px;
+            color: white;
+            margin-right: 10px;
+        }
+
+        #cursorSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #cursorSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .planet-selector {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        #planetSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #planetSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+
+<body>
+    <div class="title">Solar System Exploration</div>
+    <div class="info">Click on a planet or the Sun to explore its details.</div>
+    <div class="planet-selector">
+        <select id="planetSelect">
+            <option value="Sun">Sun</option>
+            <option value="Mercury">Mercury</option>
+            <option value="Venus">Venus</option>
+            <option value="Earth">Earth</option>
+            <option value="Mars">Mars</option>
+            <option value="Jupiter">Jupiter</option>
+            <option value="Saturn">Saturn</option>
+            <option value="Uranus">Uranus</option>
+            <option value="Neptune">Neptune</option>
+        </select>
+    </div>
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+    <div class="cursor-selector">
+        <label for="cursorSelect">Choose Cursor:</label>
+        <select id="cursorSelect">
+            <option value="cursors/starship1.cur">Starship 1</option>
+            <option value="cursors/starship2.cur">Starship 2</option>
+            <option value="cursors/starship3.cur">Starship 3</option>
+            <option value="cursors/starship4.cur">Starship 4</option>
+        </select>
+    </div>
+    <div id="hoverInfo"
+        style="position: absolute; top: 50px; left: 10px; font-size: 18px; background: rgba(0, 0, 0, 0.6); padding: 10px 15px; border-radius: 8px; display: none;">
+    </div>
+    <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')"
+        class="back-to-start-button">العودة إلى البداية</a>
+
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1500);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Add Sun
+        const sunGeometry = new THREE.SphereGeometry(5, 32, 32);
+        const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        const sun = new THREE.Mesh(sunGeometry, sunMaterial);
+        sun.name = "Sun";
+        scene.add(sun);
+
+        // Add planets
+        const planets = [
+            { name: "Mercury", color: 0xaaaaaa, size: 0.5, distance: 12 },
+            { name: "Venus", color: 0xffcc00, size: 0.9, distance: 18 },
+            { name: "Earth", color: 0x0000ff, size: 1, distance: 24 },
+            { name: "Mars", color: 0xff0000, size: 0.8, distance: 30 },
+            { name: "Jupiter", color: 0xffaa00, size: 2, distance: 40, ringWidth: 0.5 },
+            { name: "Saturn", color: 0xdddd00, size: 1.8, distance: 50, ringWidth: 2, multipleRings: true },
+            { name: "Uranus", color: 0x00ffff, size: 1.5, distance: 60, ringWidth: 0.3 },
+            { name: "Neptune", color: 0x0000ff, size: 1.4, distance: 70, ringWidth: 0.3 }
+        ];
+
+        const planetMeshes = [];
+
+        planets.forEach((planet) => {
+            const geometry = new THREE.SphereGeometry(planet.size, 32, 32);
+            const material = new THREE.MeshStandardMaterial({
+                color: planet.color,
+                roughness: 0.5,
+                metalness: 0.2
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.x = planet.distance;
+            sphere.name = planet.name;
+
+            scene.add(sphere);
+            planetMeshes.push(sphere);
+
+            // Add rings if specified
+            if (planet.ringWidth) {
+                const ringGeometry = new THREE.RingGeometry(planet.size + planet.ringWidth, planet.size + planet.ringWidth + 0.1, 64);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.x = planet.distance;
+
+                scene.add(ring);
+                planet.ringMesh = ring;
+
+                // Add multiple thin rings for Saturn
+                if (planet.multipleRings) {
+                    planet.rings = [];
+                    for (let i = 1; i <= 3; i++) {
+                        const multiRingGeometry = new THREE.RingGeometry(planet.size + planet.ringWidth + 0.2 * i, planet.size + planet.ringWidth + 0.2 * i + 0.1, 64);
+                        const multiRing = new THREE.Mesh(multiRingGeometry, ringMaterial.clone());
+                        multiRing.rotation.x = Math.PI / 2;
+                        multiRing.position.x = planet.distance;
+                        scene.add(multiRing);
+                        planet.rings.push(multiRing);
+                    }
+                }
+            }
+
+            // Draw orbit paths
+            const orbitGeometry = new THREE.RingGeometry(planet.distance - 0.1, planet.distance + 0.1, 128);
+            const orbitMaterial = new THREE.MeshBasicMaterial({
+                color: 0x888888,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.8
+            });
+            const orbit = new THREE.Mesh(orbitGeometry, orbitMaterial);
+            orbit.rotation.x = Math.PI / 2;
+            scene.add(orbit);
+
+            // Add moons
+            const moonCount = Math.floor(Math.random() * 3) + 1; // عدد عشوائي من الأقمار (1-3)
+            for (let i = 0; i < moonCount; i++) {
+                const moonGeometry = new THREE.SphereGeometry(0.1, 16, 16); // حجم القمر
+                const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xcccccc });
+                const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+                moon.name = `Moon of ${planet.name}`;
+
+                // تحديد مسافة القمر عن الكوكب
+                const moonDistance = planet.size + 0.5 + i * 0.3; // مسافة القمر عن الكوكب
+                moon.position.x = planet.distance + moonDistance;
+
+                scene.add(moon);
+                planet.moons = planet.moons || []; // إنشاء مصفوفة للأقمار إذا لم تكن موجودة
+                planet.moons.push({ mesh: moon, distance: moonDistance });
+            }
+        });
+
+        // Add random stars in the background
+        for (let i = 0; i < 1000; i++) {
+            const starGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 500,
+                (Math.random() - 0.5) * 500,
+                (Math.random() - 0.5) * 500
+            );
+
+            scene.add(star);
+        }
+
+        // Add celestial bodies
+        for (let i = 0; i < 50; i++) {
+            const bodyGeometry = new THREE.SphereGeometry(Math.random() * 3 + 0.5, 16, 16);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+            const celestialBody = new THREE.Mesh(bodyGeometry, bodyMaterial);
+
+            celestialBody.position.set(
+                (Math.random() - 0.5) * 400,
+                (Math.random() - 0.5) * 400,
+                (Math.random() - 0.5) * 400
+            );
+
+            scene.add(celestialBody);
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+        pointLight.position.set(0, 0, 0);
+        scene.add(pointLight);
+
+        // Camera position
+        camera.position.set(0, 30, 80);
+        camera.lookAt(0, 0, 0);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            sun.rotation.y += 0.001;
+
+            planetMeshes.forEach((planet, index) => {
+                const planetData = planets[index];
+                const angle = Date.now() * 0.00005 * (index + 1);
+                planet.position.x = Math.cos(angle) * planetData.distance;
+                planet.position.z = Math.sin(angle) * planetData.distance;
+                planet.rotation.y += 0.01;
+
+                // تدوير الأقمار حول الكوكب
+                if (planetData.moons) {
+                    planetData.moons.forEach((moon, moonIndex) => {
+                        const moonAngle = Date.now() * 0.0001 * (moonIndex + 1); // سرعة دوران القمر
+                        moon.mesh.position.x = planet.position.x + Math.cos(moonAngle) * moon.distance;
+                        moon.mesh.position.z = planet.position.z + Math.sin(moonAngle) * moon.distance;
+                        moon.mesh.rotation.y += 0.02;
+                    });
+                }
+
+                // تدوير الحلقات (إذا وجدت)
+                if (planetData.ringMesh) {
+                    planetData.ringMesh.position.x = planet.position.x;
+                    planetData.ringMesh.position.z = planet.position.z;
+                }
+
+                if (planetData.rings) {
+                    planetData.rings.forEach(ring => {
+                        ring.position.x = planet.position.x;
+                        ring.position.z = planet.position.z;
+                    });
+                }
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Solar System Exploration",
+                info: "Click on a planet or the Sun to explore its details.",
+                backButton: "Back to Solar System",
+                learnMore: "Learn more about",
+                selectLanguage: "Select Language",
+                planets: {
+                    Sun: "Sun",
+                    Mercury: "Mercury",
+                    Venus: "Venus",
+                    Earth: "Earth",
+                    Mars: "Mars",
+                    Jupiter: "Jupiter",
+                    Saturn: "Saturn",
+                    Uranus: "Uranus",
+                    Neptune: "Neptune"
+                }
+            },
+            ar: {
+                title: "استكشاف النظام الشمسي",
+                info: "انقر على كوكب أو الشمس لاستكشاف تفاصيلها.",
+                backButton: "العودة إلى النظام الشمسي",
+                learnMore: "تعرف على المزيد حول",
+                selectLanguage: "اختر اللغة",
+                planets: {
+                    Sun: "الشمس",
+                    Mercury: "عطارد",
+                    Venus: "الزهرة",
+                    Earth: "الأرض",
+                    Mars: "المريخ",
+                    Jupiter: "المشتري",
+                    Saturn: "زحل",
+                    Uranus: "أورانوس",
+                    Neptune: "نبتون"
+                }
+            },
+            es: {
+                title: "Exploración del Sistema Solar",
+                info: "Haz clic en un planeta o el Sol para explorar sus detalles.",
+                backButton: "Volver al Sistema Solar",
+                learnMore: "Aprende más sobre",
+                selectLanguage: "Seleccionar idioma",
+                planets: {
+                    Sun: "Sol",
+                    Mercury: "Mercurio",
+                    Venus: "Venus",
+                    Earth: "Tierra",
+                    Mars: "Marte",
+                    Jupiter: "Júpiter",
+                    Saturn: "Saturno",
+                    Uranus: "Urano",
+                    Neptune: "Neptuno"
+                }
+            },
+            fr: {
+                title: "Exploration du Système Solaire",
+                info: "Cliquez sur une planète ou le Soleil pour explorer ses détails.",
+                backButton: "Retour au Système Solaire",
+                learnMore: "En savoir plus sur",
+                selectLanguage: "Choisir la langue",
+                planets: {
+                    Sun: "Soleil",
+                    Mercury: "Mercure",
+                    Venus: "Vénus",
+                    Earth: "Terre",
+                    Mars: "Mars",
+                    Jupiter: "Jupiter",
+                    Saturn: "Saturne",
+                    Uranus: "Uranus",
+                    Neptune: "Neptune"
+                }
+            },
+            zh: {
+                title: "太阳系探索",
+                info: "点击行星或太阳以探索其详细信息。",
+                backButton: "返回太阳系",
+                learnMore: "了解更多关于",
+                selectLanguage: "选择语言",
+                planets: {
+                    Sun: "太阳",
+                    Mercury: "水星",
+                    Venus: "金星",
+                    Earth: "地球",
+                    Mars: "火星",
+                    Jupiter: "木星",
+                    Saturn: "土星",
+                    Uranus: "天王星",
+                    Neptune: "海王星"
+                }
+            }
+        };
+
+        let currentLanguage = 'en';
+        let clickedObject = null;
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelector('.title').innerText = translations[lang].title;
+            document.querySelector('.info').innerText = translations[lang].info;
+            document.getElementById('backButton').innerText = translations[lang].backButton;
+
+            if (clickedObject) {
+                const planetName = translations[lang].planets[clickedObject.name];
+                document.querySelector(".title").innerText = planetName;
+                const infoDiv = document.querySelector(".info");
+                infoDiv.innerHTML = `
+                    <button id="infoButton" style="font-size: 16px; background: linear-gradient(90deg, #1e3c72, #2a5298); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; animation: glow 1.5s infinite alternate;">
+                        ${translations[lang].learnMore} ${planetName}
+                    </button>
+                `;
+                const infoButton = document.getElementById("infoButton");
+
+                infoButton.addEventListener("mouseenter", () => {
+                    infoButton.style.background = "linear-gradient(90deg, #2a5298, #1e3c72)";
+                });
+
+                infoButton.addEventListener("mouseleave", () => {
+                    infoButton.style.background = "linear-gradient(90deg, #1e3c72, #2a5298)";
+                });
+
+                infoButton.addEventListener("click", () => {
+                    window.location.href = `${clickedObject.name.toLowerCase()}.html`;
+                });
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Function to move camera to a specific planet
+        function moveCameraToPlanet(planetName) {
+            const targetObject = scene.getObjectByName(planetName);
+            if (!targetObject) return;
+
+            const targetPosition = new THREE.Vector3(targetObject.position.x, targetObject.position.y, targetObject.position.z + 10);
+
+            const duration = 2000;
+            const startTime = performance.now();
+            const startPosition = camera.position.clone();
+
+            function updateCameraPosition() {
+                const elapsedTime = performance.now() - startTime;
+                const t = Math.min(elapsedTime / duration, 1);
+
+                camera.position.lerpVectors(startPosition, targetPosition, t);
+                camera.lookAt(targetObject.position);
+
+                if (t < 1) {
+                    requestAnimationFrame(updateCameraPosition);
+                } else {
+                    backButton.style.display = "block";
+
+                    const planetName = translations[currentLanguage].planets[targetObject.name];
+                    document.querySelector(".title").innerText = planetName;
+                    const infoDiv = document.querySelector(".info");
+                    infoDiv.innerHTML = `
+                        <button id="infoButton" style="font-size: 16px; background: linear-gradient(90deg, #1e3c72, #2a5298); color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; animation: glow 1.5s infinite alternate;">
+                            ${translations[currentLanguage].learnMore} ${planetName}
+                        </button>
+                    `;
+                    const infoButton = document.getElementById("infoButton");
+
+                    infoButton.addEventListener("mouseenter", () => {
+                        infoButton.style.background = "linear-gradient(90deg, #2a5298, #1e3c72)";
+                    });
+
+                    infoButton.addEventListener("mouseleave", () => {
+                        infoButton.style.background = "linear-gradient(90deg, #1e3c72, #2a5298)";
+                    });
+
+                    infoButton.addEventListener("click", () => {
+                        window.location.href = `${targetObject.name.toLowerCase()}.html`;
+                    });
+                }
+            }
+
+            updateCameraPosition();
+        }
+
+        // Handle planet selection from dropdown
+        const planetSelect = document.getElementById("planetSelect");
+        planetSelect.addEventListener("change", (event) => {
+            const selectedPlanet = event.target.value;
+            clickedObject = scene.getObjectByName(selectedPlanet);
+            moveCameraToPlanet(selectedPlanet);
+        });
+
+        // Handle click on planets or the Sun
+        // في صفحة index.html
+        window.addEventListener("click", (event) => {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([sun, ...planetMeshes]);
+
+            if (intersects.length > 0) {
+                clickedObject = intersects[0].object;
+                sessionStorage.setItem('nextPage', `${clickedObject.name.toLowerCase()}.html`);
+                window.location.href = 'loading.html'; // الانتقال إلى صفحة التحميل
+            }
+        });
+
+        // Back button functionality
+        const backButton = document.createElement("button");
+        backButton.id = "backButton";
+        backButton.innerText = "Back to Solar System";
+        backButton.style.display = "none";
+        backButton.style.position = "fixed";
+        backButton.style.top = "20px";
+        backButton.style.right = "20px";
+        document.body.appendChild(backButton);
+
+        backButton.addEventListener("click", () => {
+            const duration = 2000;
+            const startTime = performance.now();
+            const startPosition = camera.position.clone();
+
+            function resetCameraPosition() {
+                const elapsedTime = performance.now() - startTime;
+                const t = Math.min(elapsedTime / duration, 1);
+
+                camera.position.lerpVectors(startPosition, initialCameraPosition, t);
+                camera.lookAt(0, 0, 0);
+
+                if (t < 1) {
+                    requestAnimationFrame(resetCameraPosition);
+                } else {
+                    backButton.style.display = "none";
+                    document.querySelector(".title").innerText = translations[currentLanguage].title;
+                    document.querySelector(".info").innerText = translations[currentLanguage].info;
+                    const infoDiv = document.querySelector(".info");
+                    infoDiv.innerHTML = translations[currentLanguage].info;
+                    clickedObject = null;
+                }
+            }
+
+            resetCameraPosition();
+        });
+
+        // Hover functionality
+        const hoverInfo = document.getElementById("hoverInfo");
+
+        window.addEventListener("mousemove", (event) => {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([sun, ...planetMeshes]);
+
+            if (intersects.length > 0) {
+                const object = intersects[0].object;
+                hoverInfo.innerText = translations[currentLanguage].planets[object.name];
+                hoverInfo.style.display = "block";
+                hoverInfo.style.left = `${event.clientX + 10}px`;
+                hoverInfo.style.top = `${event.clientY + 10}px`;
+            } else {
+                hoverInfo.style.display = "none";
+            }
+        });
+
+        // Cursor selection functionality
+        const cursorSelect = document.getElementById("cursorSelect");
+
+        cursorSelect.addEventListener("change", (event) => {
+            const cursorUrl = event.target.value;
+            document.body.style.cursor = `url('${cursorUrl}'), auto`;
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/mars.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ff4500;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #ff6347;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            /* لون النص */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            /* لون خلفية العناصر */
+            color: white;
+            /* لون النص */
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Mars</h1>
+        <h2>المريخ</h2>
+        <ul>
+            <p>🔴 يُعرف بـ "الكوكب الأحمر" بسبب أكاسيد الحديد على سطحه.</p>
+            <p>🗻 يحتوي على أوليمبوس مونس، وهو أكبر جبل بركاني في النظام الشمسي.</p>
+            <p>💧 يُعتقد أنه كان يحتوي على مياه في الماضي، مما يجعله هدفًا رئيسيًا للبحث عن الحياة.</p>
+            <p>🌌 درجة الحرارة على سطحه تصل إلى ما دون الصفر معظم الوقت.</p>
+            <p>🪐 عدد الأقمار: 2 (فوبوس وديموس).</p>
+            <p>💫 عدد الحلقات: 0.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Textures for Mars
+        const textureLoader = new THREE.TextureLoader();
+        const colorTexture = textureLoader.load('https://raw.githubusercontent.com/Krimit/mars/refs/heads/master/textures/mars.jpg'); // Mars color map
+        const normalTexture = textureLoader.load('https://raw.githubusercontent.com/Krimit/mars/refs/heads/master/textures/mars_normal1.png'); // Mars normal map
+        const specularTexture = textureLoader.load('https://github.com/Krimit/mars/blob/master/textures/mars_spec1.png'); // Mars specular map (optional)
+        const cloudTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/ea29e5cc-b27f-42ba-9b3c-b4c1186a76ba/ddneq0x-ec38613b-153a-41b4-86af-a1e7e24646c7.png/v1/fill/w_1264,h_632/mars_cloud_texture_by_hmsmaidnelson_ddneq0x-pre.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjQwIiwicGF0aCI6IlwvZlwvZWEyOWU1Y2MtYjI3Zi00MmJhLTliM2MtYjRjMTE4NmE3NmJhXC9kZG5lcTB4LWVjMzg2MTNiLTE1M2EtNDFiNC04NmFmLWExZTdlMjQ2NDZjNy5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25sIl19.ksdcqcLvCUAjJJJZwgWs2s6cJ0oNpUOs0wAISHTpE-0'); // Mars cloud map (optional)
+
+        // Mars geometry and material
+        const marsGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const marsMaterial = new THREE.MeshPhongMaterial({
+            map: colorTexture,
+            normalMap: normalTexture,
+            specularMap: specularTexture,
+            specular: new THREE.Color('grey'),
+            shininess: 10
+        });
+
+        const marsMesh = new THREE.Mesh(marsGeometry, marsMaterial);
+        scene.add(marsMesh);
+
+        // Cloud geometry and material (optional, if you have Mars cloud textures)
+        const cloudGeometry = new THREE.SphereGeometry(5.1, 50, 50);
+        const cloudMaterial = new THREE.MeshPhongMaterial({
+            map: cloudTexture,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
+        scene.add(cloudMesh);
+
+        // Moons
+        const moonGeometry = new THREE.SphereGeometry(5, 32, 32);
+        const moonMaterial = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+        const moon1 = new THREE.Mesh(moonGeometry, moonMaterial);
+        moon1.position.set(150, 0, 0);
+        scene.add(moon1);
+
+        const moon2 = new THREE.Mesh(moonGeometry, moonMaterial);
+        moon2.position.set(-150, 0, 0);
+        scene.add(moon2);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Atmospheric scattering effect for Mars
+        const atmosphereGeometry = new THREE.SphereGeometry(5.2, 50, 50);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.8, 0.4, 0.2, 1.0) * intensity; // Mars-like reddish atmosphere
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+
+        const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphereMesh);
+
+        // Camera position
+        camera.position.z = 15;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Mars and clouds
+            marsMesh.rotation.y += 0.001;
+            if (cloudMesh) cloudMesh.rotation.y += 0.0015;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Mars",
+                subtitle: "المريخ",
+                info: [
+                    "🔴 Known as the 'Red Planet' due to iron oxides on its surface.",
+                    "🗻 Contains Olympus Mons, the largest volcano in the solar system.",
+                    "💧 Believed to have contained water in the past, making it a prime target for the search for life.",
+                    "🌌 Temperatures on its surface are mostly below freezing.",
+                    "🪐 Number of moons: 2 (Phobos and Deimos).",
+                    "💫 Number of rings: 0."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "المريخ",
+                subtitle: "Mars",
+                info: [
+                    "🔴 يُعرف بـ 'الكوكب الأحمر' بسبب أكاسيد الحديد على سطحه.",
+                    "🗻 يحتوي على أوليمبوس مونس، وهو أكبر جبل بركاني في النظام الشمسي.",
+                    "💧 يُعتقد أنه كان يحتوي على مياه في الماضي، مما يجعله هدفًا رئيسيًا للبحث عن الحياة.",
+                    "🌌 درجة الحرارة على سطحه تصل إلى ما دون الصفر معظم الوقت.",
+                    "🪐 عدد الأقمار: 2 (فوبوس وديموس).",
+                    "💫 عدد الحلقات: 0."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Marte",
+                subtitle: "المريخ",
+                info: [
+                    "🔴 Conocido como el 'Planeta Rojo' debido a los óxidos de hierro en su superficie.",
+                    "🗻 Contiene el Monte Olimpo, el volcán más grande del sistema solar.",
+                    "💧 Se cree que contenía agua en el pasado, lo que lo convierte en un objetivo principal para la búsqueda de vida.",
+                    "🌌 Las temperaturas en su superficie son en su mayoría bajo cero.",
+                    "🪐 Número de lunas: 2 (Fobos y Deimos).",
+                    "💫 Número de anillos: 0."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Mars",
+                subtitle: "المريخ",
+                info: [
+                    "🔴 Connu sous le nom de 'Planète Rouge' en raison des oxydes de fer à sa surface.",
+                    "🗻 Contient Olympus Mons, le plus grand volcan du système solaire.",
+                    "💧 On pense qu'il contenait de l'eau dans le passé, ce qui en fait une cible principale pour la recherche de la vie.",
+                    "🌌 Les températures à sa surface sont principalement inférieures à zéro.",
+                    "🪐 Nombre de lunes: 2 (Phobos et Deimos).",
+                    "💫 Nombre d'anneaux: 0."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "火星",
+                subtitle: "المريخ",
+                info: [
+                    "🔴 因其表面的氧化铁而被称为'红色星球'。",
+                    "🗻 包含奥林匹斯山，太阳系中最大的火山。",
+                    "💧 被认为过去曾含有水，使其成为寻找生命的主要目标。",
+                    "🌌 其表面温度大多低于冰点。",
+                    "🪐 卫星数量: 2 (火卫一和火卫二)。",
+                    "💫 环数量: 0。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

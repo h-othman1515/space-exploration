@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venus</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/venus.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #ffaa00;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Venus</h1>
+        <h2>الزهرة</h2>
+        <ul>
+            <p>🔥 الكوكب الأكثر سخونة بسبب تأثير البيت الزجاجي.</p>
+            <p>🌫️ غلاف جوي كثيف وضغط جوي عالٍ.</p>
+            <p>🌍 يُعرف بـ "توأم الأرض" بسبب حجمه القريب من الأرض.</p>
+            <p>🪐 عدد الأقمار: 0.</p>
+            <p>💫 عدد الحلقات: 0.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Textures for Venus
+        const textureLoader = new THREE.TextureLoader();
+        const colorTexture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_venus_surface.jpg'); // Venus color map
+        const normalTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a0bebea3-9ff6-49c3-895a-452cc5c9da63/dg0az43-ddcb53dd-7178-4300-8243-b81766a00cbe.png/v1/fill/w_1024,h_512,q_80,strp/venus_normal_map___remake___by_colourness_dg0az43-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvYTBiZWJlYTMtOWZmNi00OWMzLTg5NWEtNDUyY2M1YzlkYTYzXC9kZzBhejQzLWRkY2I1M2RkLTcxNzgtNDMwMC04MjQzLWI4MTc2NmEwMGNiZS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.VayBsA0XV2FjaEeuY0lydeyQey0QOsU-9dn7u2W32w8'); // Venus normal map
+        const specularTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b7fe5389-9714-4f1b-9101-ac2a97133816/dg6w8oj-c735d747-02a6-4867-93a4-74e587900f49.jpg/v1/fill/w_1264,h_632,q_70,strp/venus_surface_texture_map_8k_by_askanery_dg6w8oj-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjQwIiwicGF0aCI6IlwvZlwvYjdmZTUzODktOTcxNC00ZjFiLTkxMDEtYWMyYTk3MTMzODE2XC9kZzZ3OG9qLWM3MzVkNzQ3LTAyYTYtNDg2Ny05M2E0LTc0ZTU4NzkwMGY0OS5qcGciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.Vr8-MGfiOjkq1IT3-6Jhdotwt9GFlcSgoRtv8iXtHnY'); // Venus specular map
+
+        // Venus geometry and material
+        const venusGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const venusMaterial = new THREE.MeshPhongMaterial({
+            map: colorTexture,
+            normalMap: normalTexture,
+            specularMap: specularTexture,
+            specular: new THREE.Color('darkorange'),
+            shininess: 1
+        });
+
+        const venusMesh = new THREE.Mesh(venusGeometry, venusMaterial);
+        scene.add(venusMesh);
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Atmospheric scattering effect for Venus
+        const atmosphereGeometry = new THREE.SphereGeometry(5.2, 50, 50);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.9, 0.6, 0.2, 1.0) * intensity; // Venus-like yellowish atmosphere
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+
+        const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphereMesh);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Bright point light
+        pointLight.position.set(200, 200, 200);
+        scene.add(pointLight);
+
+        // Camera Position
+        camera.position.z = 15;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Venus
+            venusMesh.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Venus",
+                subtitle: "الزهرة",
+                info: [
+                    "🔥 The hottest planet due to the greenhouse effect.",
+                    "🌫️ Dense atmosphere and high atmospheric pressure.",
+                    "🌍 Known as 'Earth's twin' due to its similar size.",
+                    "🪐 Number of moons: 0.",
+                    "💫 Number of rings: 0."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "الزهرة",
+                subtitle: "Venus",
+                info: [
+                    "🔥 الكوكب الأكثر سخونة بسبب تأثير البيت الزجاجي.",
+                    "🌫️ غلاف جوي كثيف وضغط جوي عالٍ.",
+                    "🌍 يُعرف بـ 'توأم الأرض' بسبب حجمه القريب من الأرض.",
+                    "🪐 عدد الأقمار: 0.",
+                    "💫 عدد الحلقات: 0."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Venus",
+                subtitle: "الزهرة",
+                info: [
+                    "🔥 El planeta más caliente debido al efecto invernadero.",
+                    "🌫️ Atmósfera densa y alta presión atmosférica.",
+                    "🌍 Conocido como 'el gemelo de la Tierra' debido a su tamaño similar.",
+                    "🪐 Número de lunas: 0.",
+                    "💫 Número de anillos: 0."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Vénus",
+                subtitle: "الزهرة",
+                info: [
+                    "🔥 La planète la plus chaude en raison de l'effet de serre.",
+                    "🌫️ Atmosphère dense et haute pression atmosphérique.",
+                    "🌍 Connue comme 'la jumelle de la Terre' en raison de sa taille similaire.",
+                    "🪐 Nombre de lunes: 0.",
+                    "💫 Nombre d'anneaux: 0."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "金星",
+                subtitle: "الزهرة",
+                info: [
+                    "🔥 由于温室效应，是最热的行星。",
+                    "🌫️ 稠密的大气层和高气压。",
+                    "🌍 由于大小相似，被称为'地球的双胞胎'。",
+                    "🪐 卫星数量: 0。",
+                    "💫 环数量: 0。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neptune</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/neptune.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #00ccff;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #66d9ff;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Neptune</h1>
+        <h2>نبتون</h2>
+        <ul>
+            <p>🌌 أبعد كواكب المجموعة الشمسية عن الشمس، حيث يتميز بجماله الفريد.</p>
+            <p>💨 يشتهر برياحه العاتية التي تعد من الأقوى في المجموعة الشمسية.</p>
+            <p>🌪️ يمتلك عواصف ضخمة مثل "البقعة المظلمة العظيمة".</p>
+            <p>🪐 لديه حلقات باهتة وعدة أقمار تدور حوله.</p>
+            <p>🪐 عدد الأقمار: 14.</p>
+            <p>💫 عدد الحلقات: 5.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Textures for Neptune
+        const textureLoader = new THREE.TextureLoader();
+        const colorTexture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_neptune.jpg'); // Neptune color map
+        const normalTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/fdedbd0d-a698-4b53-af5d-26c4046fa564/dcfwjvx-48d0f740-b17b-49a1-86ed-7ee7e2e16751.png/v1/fill/w_1024,h_512,q_80,strp/neptunevoyager2_smooth_by_astra_planetshine_dcfwjvx-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvZmRlZGJkMGQtYTY5OC00YjUzLWFmNWQtMjZjNDA0NmZhNTY0XC9kY2Z3anZ4LTQ4ZDBmNzQwLWIxN2ItNDlhMS04NmVkLTdlZTdlMmUxNjc1MS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.W1hFfHCzTd4H_5vpQWAkXI9OapxsGXg3PXaZi0MsYUs'); // Neptune normal map
+        const specularTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/22b3044c-1e1e-47b6-87a3-a0a17b55e832/dh17oh5-0139c8ce-bebe-41c1-a315-066c79b2b440.png/v1/fill/w_1264,h_632,q_70,strp/neptune_texture_map__2020__by_itzimcool_dh17oh5-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTAyNCIsInBhdGgiOiJcL2ZcLzIyYjMwNDRjLTFlMWUtNDdiNi04N2EzLWEwYTE3YjU1ZTgzMlwvZGgxN29oNS0wMTM5YzhjZS1iZWJlLTQxYzEtYTMxNS0wNjZjNzliMmI0NDAucG5nIiwid2lkdGgiOiI8PTIwNDgifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.ckH8q52ynJd__a2T98zuPk785r9Or-wPg1pz93_eHJA'); // Neptune specular map (optional)
+
+        // Neptune geometry and material
+        const neptuneGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const neptuneMaterial = new THREE.MeshPhongMaterial({
+            map: colorTexture,
+            normalMap: normalTexture,
+            specularMap: specularTexture,
+            specular: new THREE.Color('blue'),
+            shininess: 1
+        });
+
+        const neptuneMesh = new THREE.Mesh(neptuneGeometry, neptuneMaterial);
+        scene.add(neptuneMesh);
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.25);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Atmospheric scattering effect for Neptune (optional)
+        const atmosphereGeometry = new THREE.SphereGeometry(5.2, 50, 50);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.2, 0.4, 0.8, 1.0) * intensity; // Neptune-like atmosphere
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+
+        const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphereMesh);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Bright point light
+        pointLight.position.set(200, 200, 200);
+        scene.add(pointLight);
+
+        // Camera Position
+        camera.position.z = 15;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Neptune
+            neptuneMesh.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Neptune",
+                subtitle: "نبتون",
+                info: [
+                    "🌌 The farthest planet from the Sun, known for its unique beauty.",
+                    "💨 Famous for its strong winds, among the strongest in the solar system.",
+                    "🌪️ Has massive storms like the 'Great Dark Spot'.",
+                    "🪐 Has faint rings and several moons orbiting it.",
+                    "🪐 Number of moons: 14.",
+                    "💫 Number of rings: 5."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "نبتون",
+                subtitle: "Neptune",
+                info: [
+                    "🌌 أبعد كواكب المجموعة الشمسية عن الشمس، حيث يتميز بجماله الفريد.",
+                    "💨 يشتهر برياحه العاتية التي تعد من الأقوى في المجموعة الشمسية.",
+                    "🌪️ يمتلك عواصف ضخمة مثل 'البقعة المظلمة العظيمة'.",
+                    "🪐 لديه حلقات باهتة وعدة أقمار تدور حوله.",
+                    "🪐 عدد الأقمار: 14.",
+                    "💫 عدد الحلقات: 5."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Neptuno",
+                subtitle: "نبتون",
+                info: [
+                    "🌌 El planeta más lejano del Sol, conocido por su belleza única.",
+                    "💨 Famoso por sus fuertes vientos, entre los más fuertes del sistema solar.",
+                    "🌪️ Tiene tormentas masivas como la 'Gran Mancha Oscura'.",
+                    "🪐 Tiene anillos tenues y varias lunas que lo orbitan.",
+                    "🪐 Número de lunas: 14.",
+                    "💫 Número de anillos: 5."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Neptune",
+                subtitle: "نبتون",
+                info: [
+                    "🌌 La planète la plus éloignée du Soleil, connue pour sa beauté unique.",
+                    "💨 Célèbre pour ses vents forts, parmi les plus forts du système solaire.",
+                    "🌪️ Possède des tempêtes massives comme la 'Grande Tache Sombre'.",
+                    "🪐 A des anneaux faibles et plusieurs lunes en orbite.",
+                    "🪐 Nombre de lunes: 14.",
+                    "💫 Nombre d'anneaux: 5."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "海王星",
+                subtitle: "نبتون",
+                info: [
+                    "🌌 离太阳最远的行星，以其独特的美而闻名。",
+                    "💨 以其强风而闻名，是太阳系中最强的风之一。",
+                    "🌪️ 有巨大的风暴，如'大黑斑'。",
+                    "🪐 有微弱的光环和几颗卫星绕其运行。",
+                    "🪐 卫星数量: 14。",
+                    "💫 环数量: 5。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

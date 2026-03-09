@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercury</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/mercury.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #aaaaaa;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #cccccc;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Mercury</h1>
+        <h2>عطارد</h2>
+        <ul>
+            <p>☀️ الكوكب الأقرب إلى الشمس، حيث تصل درجة الحرارة إلى مستويات مرتفعة جدًا خلال النهار.</p>
+            <p>🌑 أصغر كواكب المجموعة الشمسية، وحجمه أكبر بقليل من القمر.</p>
+            <p>🪐 سطحه مليء بالفوهات الناتجة عن اصطدام النيازك والكويكبات.</p>
+            <p>🌌 لا يمتلك غلافًا جويًا كبيرًا، مما يجعله عرضة لتقلبات حرارية هائلة.</p>
+            <p>🪐 عدد الأقمار: 0.</p>
+            <p>💫 عدد الحلقات: 0.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Textures for Mercury
+        const textureLoader = new THREE.TextureLoader();
+        const colorTexture = textureLoader.load('https://www.solarsystemscope.com/textures/download/2k_mercury.jpg'); // Mercury color map
+        const normalTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/e2157ec1-5743-4255-972e-e340ddeb75c9/de5r1l3-7fb66a7c-3c1e-444b-afee-6efbd94efd04.png/v1/fill/w_1264,h_632,q_70,strp/8k_mercury_normal_map_by_martyos_de5r1l3-pre.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NjQwIiwicGF0aCI6IlwvZlwvZTIxNTdlYzEtNTc0My00MjU1LTk3MmUtZTM0MGRkZWI3NWM5XC9kZTVyMWwzLTdmYjY2YTdjLTNjMWUtNDQ0Yi1hZmVlLTZlZmJkOTRlZmQwNC5wbmciLCJ3aWR0aCI6Ijw9MTI4MCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.CpPTp9WAH81MN3wB3xwSP0V7y690fg379lX3H_CJd2o'); // Mercury normal map
+        const specularTexture = textureLoader.load('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT5m3fRp-xdaNcs80cbF8GMR1r6Nnf8LkUL_A&s'); // Mercury specular map (optional)
+
+        // Mercury geometry and material
+        const mercuryGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const mercuryMaterial = new THREE.MeshPhongMaterial({
+            map: colorTexture,
+            normalMap: normalTexture,
+            specularMap: specularTexture,
+            specular: new THREE.Color('lightgrey'),
+            shininess: 2
+        });
+
+        const mercuryMesh = new THREE.Mesh(mercuryGeometry, mercuryMaterial);
+        scene.add(mercuryMesh);
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.25);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Atmospheric scattering effect for Mercury (optional)
+        const atmosphereGeometry = new THREE.SphereGeometry(5.2, 50, 50);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.8, 0.4, 0.2, 1.0) * intensity; // Mercury-like atmosphere
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+
+        const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphereMesh);
+
+        // Background Stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Bright point light
+        pointLight.position.set(200, 200, 200);
+        scene.add(pointLight);
+
+        // Camera Position
+        camera.position.z = 15;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Mercury
+            mercuryMesh.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Mercury",
+                subtitle: "عطارد",
+                info: [
+                    "☀️ The closest planet to the Sun, with temperatures reaching extremely high levels during the day.",
+                    "🌑 The smallest planet in the solar system, slightly larger than the Moon.",
+                    "🪐 Its surface is filled with craters from meteorite and asteroid impacts.",
+                    "🌌 It does not have a significant atmosphere, making it susceptible to extreme temperature fluctuations.",
+                    "🪐 Number of moons: 0.",
+                    "💫 Number of rings: 0."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "عطارد",
+                subtitle: "Mercury",
+                info: [
+                    "☀️ الكوكب الأقرب إلى الشمس، حيث تصل درجة الحرارة إلى مستويات مرتفعة جدًا خلال النهار.",
+                    "🌑 أصغر كواكب المجموعة الشمسية، وحجمه أكبر بقليل من القمر.",
+                    "🪐 سطحه مليء بالفوهات الناتجة عن اصطدام النيازك والكويكبات.",
+                    "🌌 لا يمتلك غلافًا جويًا كبيرًا، مما يجعله عرضة لتقلبات حرارية هائلة.",
+                    "🪐 عدد الأقمار: 0.",
+                    "💫 عدد الحلقات: 0."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Mercurio",
+                subtitle: "عطارد",
+                info: [
+                    "☀️ El planeta más cercano al Sol, con temperaturas que alcanzan niveles extremadamente altos durante el día.",
+                    "🌑 El planeta más pequeño del sistema solar, un poco más grande que la Luna.",
+                    "🪐 Su superficie está llena de cráteres por impactos de meteoritos y asteroides.",
+                    "🌌 No tiene una atmósfera significativa, lo que lo hace susceptible a fluctuaciones extremas de temperatura.",
+                    "🪐 Número de lunas: 0.",
+                    "💫 Número de anillos: 0."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Mercure",
+                subtitle: "عطارد",
+                info: [
+                    "☀️ La planète la plus proche du Soleil, avec des températures atteignant des niveaux extrêmement élevés pendant la journée.",
+                    "🌑 La plus petite planète du système solaire, légèrement plus grande que la Lune.",
+                    "🪐 Sa surface est remplie de cratères dus aux impacts de météorites et d'astéroïdes.",
+                    "🌌 Elle n'a pas d'atmosphère significative, ce qui la rend sujette à des fluctuations extrêmes de température.",
+                    "🪐 Nombre de lunes: 0.",
+                    "💫 Nombre d'anneaux: 0."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "水星",
+                subtitle: "عطارد",
+                info: [
+                    "☀️ 离太阳最近的行星，白天温度极高。",
+                    "🌑 太阳系中最小的行星，略大于月球。",
+                    "🪐 其表面布满了陨石和小行星撞击的坑。",
+                    "🌌 没有显著的大气层，使其容易受到极端温度波动的影响。",
+                    "🪐 卫星数量: 0。",
+                    "💫 环数量: 0。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

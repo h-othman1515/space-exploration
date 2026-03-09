@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moon</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            cursor: url('cursors/moon.cur'), auto;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #00aaff;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #00ddff;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Moon</h1>
+        <h2>القمر</h2>
+        <ul>
+            <p>🌑 القمر الطبيعي الوحيد للأرض.</p>
+            <p>🌕 يظهر بأطوار مختلفة بسبب دورانه حول الأرض.</p>
+            <p>🌗 يؤثر على المد والجزر في المحيطات.</p>
+            <p>🌒 يبعد حوالي 384,400 كيلومتر عن الأرض.</p>
+            <p>🌘 ليس له غلاف جوي أو ماء سائل.</p>
+            <p>🌍 يدور حول الأرض كل 27.3 يوم.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'earth.html')" id="backButton">Back to Earth</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Texture loader
+        const textureLoader = new THREE.TextureLoader();
+
+        // Moon textures
+        const moonColorTexture = textureLoader.load('https://raw.githubusercontent.com/CoryG89/MoonDemo/refs/heads/master/img/maps/moon1024x512.jpg'); // Moon color map
+        const moonNormalTexture = textureLoader.load('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a0bebea3-9ff6-49c3-895a-452cc5c9da63/dg0az1k-14b11cea-fb38-4e34-bb20-890814ceb9cc.png/v1/fill/w_1024,h_512,q_80,strp/moon_normal_map___remake___by_colourness_dg0az1k-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvYTBiZWJlYTMtOWZmNi00OWMzLTg5NWEtNDUyY2M1YzlkYTYzXC9kZzBhejFrLTE0YjExY2VhLWZiMzgtNGUzNC1iYjIwLTg5MDgxNGNlYjljYy5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVرYXRpb25zIl19.uXIgwhByHgkK1TJcvsOQrOoQrZf6dTecZ04XVkBEuwI'); // Moon normal map
+        const moonSpecularTexture = textureLoader.load('https://www.cgchannel.com/wp-content/uploads/2021/02/210221_VFXAssetsFreeMoonDisplacementMap.jpg'); // Moon specular map
+
+        // Moon geometry and material
+        const moonGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const moonMaterial = new THREE.MeshPhongMaterial({
+            map: moonColorTexture,
+            normalMap: moonNormalTexture,
+            specularMap: moonSpecularTexture,
+            specular: new THREE.Color('white'),
+            shininess: 10,
+        });
+        const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+        scene.add(moon);
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 10);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Atmospheric scattering effect for Moon (optional)
+        const atmosphereGeometry = new THREE.SphereGeometry(5.2, 50, 50);
+        const atmosphereMaterial = new THREE.ShaderMaterial({
+            vertexShader: `
+                varying vec3 vNormal;
+                void main() {
+                    vNormal = normalize(normalMatrix * normal);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec3 vNormal;
+                void main() {
+                    float intensity = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+                    gl_FragColor = vec4(0.8, 0.8, 0.8, 1.0) * intensity; // Moon-like atmosphere
+                }
+            `,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            transparent: true
+        });
+
+        const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
+        scene.add(atmosphereMesh);
+
+        // Background stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040); // Soft ambient light
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 2, 1000); // Bright point light
+        pointLight.position.set(200, 200, 200);
+        scene.add(pointLight);
+
+        // Camera position
+        camera.position.z = 15;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate the Moon
+            moon.rotation.y += 0.001;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Moon",
+                subtitle: "القمر",
+                info: [
+                    "🌑 The only natural satellite of Earth.",
+                    "🌕 Appears in different phases due to its orbit around Earth.",
+                    "🌗 Influences tides in the oceans.",
+                    "🌒 Approximately 384,400 km away from Earth.",
+                    "🌘 Has no atmosphere or liquid water.",
+                    "🌍 Orbits Earth every 27.3 days."
+                ],
+                backButton: "Back to Solar System",
+                backToEarth: "Back to Earth"
+            },
+            ar: {
+                title: "القمر",
+                subtitle: "Moon",
+                info: [
+                    "🌑 القمر الطبيعي الوحيد للأرض.",
+                    "🌕 يظهر بأطوار مختلفة بسبب دورانه حول الأرض.",
+                    "🌗 يؤثر على المد والجزر في المحيطات.",
+                    "🌒 يبعد حوالي 384,400 كيلومتر عن الأرض.",
+                    "🌘 ليس له غلاف جوي أو ماء سائل.",
+                    "🌍 يدور حول الأرض كل 27.3 يوم."
+                ],
+                backButton: "العودة إلى النظام الشمسي",
+                backToEarth: "العودة إلى الأرض"
+            },
+            es: {
+                title: "Luna",
+                subtitle: "القمر",
+                info: [
+                    "🌑 El único satélite natural de la Tierra.",
+                    "🌕 Aparece en diferentes fases debido a su órbita alrededor de la Tierra.",
+                    "🌗 Influencia las mareas en los océanos.",
+                    "🌒 Aproximadamente a 384,400 km de la Tierra.",
+                    "🌘 No tiene atmósfera ni agua líquida.",
+                    "🌍 Orbita la Tierra cada 27.3 días."
+                ],
+                backButton: "Volver al Sistema Solar",
+                backToEarth: "Volver a la Tierra"
+            },
+            fr: {
+                title: "Lune",
+                subtitle: "القمر",
+                info: [
+                    "🌑 Le seul satellite naturel de la Terre.",
+                    "🌕 Apparaît dans différentes phases en raison de son orbite autour de la Terre.",
+                    "🌗 Influence les marées dans les océans.",
+                    "🌒 Environ 384,400 km de la Terre.",
+                    "🌘 N'a pas d'atmosphère ni d'eau liquide.",
+                    "🌍 Orbite la Terre tous les 27.3 jours."
+                ],
+                backButton: "Retour au Système Solaire",
+                backToEarth: "Retour à la Terre"
+            },
+            zh: {
+                title: "月球",
+                subtitle: "القمر",
+                info: [
+                    "🌑 地球唯一的天然卫星。",
+                    "🌕 由于绕地球运行而呈现不同的相位。",
+                    "🌗 影响海洋潮汐。",
+                    "🌒 距离地球约384,400公里。",
+                    "🌘 没有大气层或液态水。",
+                    "🌍 每27.3天绕地球一周。"
+                ],
+                backButton: "返回太阳系",
+                backToEarth: "返回地球"
+            }
+        };
+
+        let currentLanguage = 'ar'; // Default language is Arabic
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            document.getElementById('backButton').innerText = translation.backToEarth; // Update "Back to Earth" button text
+
+            // Change text alignment based on language
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

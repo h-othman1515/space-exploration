@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saturn</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/saturn.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #ffcc00;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #ffd700;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Saturn</h1>
+        <h2>زحل</h2>
+        <ul>
+            <p>🌌 مشهور بحلقاته الجميلة المكونة من الجليد والصخور.</p>
+            <p>🪐 ثاني أكبر كوكب في المجموعة الشمسية.</p>
+            <p>💧 خفيف جدًا لدرجة أنه يمكن أن يطفو في الماء.</p>
+            <p>🪐 عدد الأقمار: 82.</p>
+            <p>💫 عدد الحلقات: 7.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Texture loader
+        const textureLoader = new THREE.TextureLoader();
+
+        // Saturn textures
+        const saturnTexture = textureLoader.load('https://raw.githubusercontent.com/ankitjha2603/solar-system3D/refs/heads/main/image/saturn.jpg');
+        const saturnRingTexture = textureLoader.load('https://github.com/ankitjha2603/solar-system3D/blob/main/image/saturn_ring.png?raw=true');
+
+        // Function to generate a planet with optional rings
+        const genratePlanet = (size, planetTexture, x, ring) => {
+            const planetGeometry = new THREE.SphereGeometry(size, 50, 50);
+            const planetMaterial = new THREE.MeshStandardMaterial({
+                map: planetTexture,
+            });
+            const planet = new THREE.Mesh(planetGeometry, planetMaterial);
+            const planetObj = new THREE.Object3D();
+            planet.position.set(x, 0, 0);
+
+            // Add rings if specified
+            if (ring) {
+                const ringGeo = new THREE.RingGeometry(
+                    ring.innerRadius,
+                    ring.outerRadius,
+                    32
+                );
+                const ringMat = new THREE.MeshBasicMaterial({
+                    map: ring.ringmat,
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.8,
+                });
+                const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+                planetObj.add(ringMesh);
+                ringMesh.position.set(x, 0, 0);
+                ringMesh.rotation.x = -0.5 * Math.PI;
+            }
+
+            scene.add(planetObj);
+            planetObj.add(planet);
+
+            return {
+                planetObj: planetObj,
+                planet: planet,
+            };
+        };
+
+        // Create Saturn with rings
+        const saturn = genratePlanet(10, saturnTexture, 0, {
+            innerRadius: 10,
+            outerRadius: 20,
+            ringmat: saturnRingTexture,
+        });
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Background stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Camera position
+        camera.position.z = 20;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Saturn and its rings
+            saturn.planetObj.rotation.y += 0.005;
+            saturn.planet.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Saturn",
+                subtitle: "زحل",
+                info: [
+                    "🌌 Famous for its beautiful rings made of ice and rock.",
+                    "🪐 The second largest planet in the solar system.",
+                    "💧 So light that it could float on water.",
+                    "🪐 Number of moons: 82.",
+                    "💫 Number of rings: 7."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "زحل",
+                subtitle: "Saturn",
+                info: [
+                    "🌌 مشهور بحلقاته الجميلة المكونة من الجليد والصخور.",
+                    "🪐 ثاني أكبر كوكب في المجموعة الشمسية.",
+                    "💧 خفيف جدًا لدرجة أنه يمكن أن يطفو في الماء.",
+                    "🪐 عدد الأقمار: 82.",
+                    "💫 عدد الحلقات: 7."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Saturno",
+                subtitle: "زحل",
+                info: [
+                    "🌌 Famoso por sus hermosos anillos hechos de hielo y roca.",
+                    "🪐 El segundo planeta más grande del sistema solar.",
+                    "💧 Tan ligero que podría flotar en el agua.",
+                    "🪐 Número de lunas: 82.",
+                    "💫 Número de anillos: 7."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Saturne",
+                subtitle: "زحل",
+                info: [
+                    "🌌 Célèbre pour ses magnifiques anneaux faits de glace et de roche.",
+                    "🪐 La deuxième plus grande planète du système solaire.",
+                    "💧 Si léger qu'il pourrait flotter sur l'eau.",
+                    "🪐 Nombre de lunes: 82.",
+                    "💫 Nombre d'anneaux: 7."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "土星",
+                subtitle: "زحل",
+                info: [
+                    "🌌 以其美丽的冰和岩石环而闻名。",
+                    "🪐 太阳系中第二大的行星。",
+                    "💧 非常轻，可以浮在水上。",
+                    "🪐 卫星数量: 82。",
+                    "💫 环数量: 7。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>

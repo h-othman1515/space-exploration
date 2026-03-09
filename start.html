@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ابدأ الرحلة</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            background: url('images/space_background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            cursor: url('cursors/starship1.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .start-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 1000;
+        }
+
+        .start-button {
+            font-size: 24px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        /* النجوم المتحركة */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .stars span {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* رواد الفضاء المتحركة */
+        .astronaut {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: url('images/astronaut.png') no-repeat center center;
+            background-size: contain;
+            animation: float 5s infinite ease-in-out, rotate 10s infinite linear;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* الشهب المتحركة */
+        .meteor {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            box-shadow: 0 0 10px 2px white;
+            animation: meteorFall 2s linear infinite;
+        }
+
+        @keyframes meteorFall {
+            0% {
+                transform: translateY(-100px) translateX(-100px);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) translateX(100vw);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- النجوم -->
+    <div class="stars">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- رواد الفضاء -->
+    <div class="astronaut" style="top: 40%; left: 60%;"></div>
+    <div class="astronaut" style="top: 60%; left: 20%;"></div>
+    <div class="astronaut" style="top: 80%; left: 70%;"></div>
+
+    <!-- الشهب -->
+    <div class="meteor" style="top: 0; left: 0;"></div>
+    <div class="meteor" style="top: 0; left: 50%;"></div>
+    <div class="meteor" style="top: 0; left: 80%;"></div>
+
+    <!-- زر ابدأ الرحلة -->
+    <div class="start-container">
+        <!-- في صفحة start.html -->
+        <button class="start-button" id="startButton" onclick="sessionStorage.setItem('nextPage', 'index.html');
+         window.location.href='loading.html'">ابدأ الرحلة الآن</button>
+    </div>
+
+    <!-- اختيار اللغة -->
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script>
+        // إنشاء النجوم بشكل عشوائي
+        const starsContainer = document.querySelector('.stars');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('span');
+            star.style.top = `${Math.random() * 100}%`;
+            star.style.left = `${Math.random() * 100}%`;
+            star.style.animationDuration = `${Math.random() * 3 + 1}s`; // سرعة الوميض
+            starsContainer.appendChild(star);
+        }
+
+        // إنشاء شهب عشوائية
+        function createMeteor() {
+            const meteor = document.createElement('div');
+            meteor.className = 'meteor';
+            meteor.style.top = `${Math.random() * 100}%`;
+            meteor.style.left = `${Math.random() * 100}%`;
+            meteor.style.animationDuration = `${Math.random() * 2 + 1}s`; // سرعة السقوط
+            document.body.appendChild(meteor);
+
+            // إزالة الشهاب بعد انتهاء الرسوم المتحركة
+            setTimeout(() => {
+                meteor.remove();
+            }, 2000);
+        }
+
+        // إنشاء شهب كل ثانية
+        setInterval(createMeteor, 1000);
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                startButton: "Start the Journey Now"
+            },
+            ar: {
+                startButton: "ابدأ الرحلة الآن"
+            },
+            es: {
+                startButton: "Comienza el viaje ahora"
+            },
+            fr: {
+                startButton: "Commencez le voyage maintenant"
+            },
+            zh: {
+                startButton: "立即开始旅程"
+            }
+        };
+
+        let currentLanguage = 'ar'; // Default language is Arabic
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.getElementById('startButton').innerText = translation.startButton;
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+
+        // Start button functionality
+        document.getElementById('startButton').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+
+</html>

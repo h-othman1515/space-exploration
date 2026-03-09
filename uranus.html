@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uranus</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            cursor: url('cursors/uranus.cur'), auto;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        .container {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #00cccc;
+            margin-bottom: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul p {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #ddd;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #00ff00;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+
+        #languageSelect {
+            font-size: 16px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        #languageSelect option {
+            background: #2a5298;
+            color: white;
+        }
+
+        .back-to-start-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            animation: glow 1.5s infinite alternate;
+        }
+
+        .back-to-start-button:hover {
+            background: linear-gradient(90deg, #2a5298, #1e3c72);
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px #2a5298;
+            }
+
+            to {
+                box-shadow: 0 0 20px #1e3c72;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Uranus</h1>
+        <h2>أورانوس</h2>
+        <ul>
+            <p>🔄 يدور على جانبه، مما يجعله مميزًا.</p>
+            <p>🧪 غلافه الجوي يحتوي على الهيدروجين والهيليوم والميثان.</p>
+            <p>❄️ يتميز بدرجات حرارة منخفضة جدًا.</p>
+            <p>🪐 عدد الأقمار: 27.</p>
+            <p>💫 عدد الحلقات: 13.</p>
+        </ul>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'index.html')">Back to Solar System</a>
+        <a href="loading.html" onclick="sessionStorage.setItem('nextPage', 'start.html')" class="back-to-start-button">العودة إلى البداية</a>
+    </div>
+
+    <div class="language-switcher">
+        <select id="languageSelect">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="zh">中文</option>
+        </select>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Texture loader
+        const textureLoader = new THREE.TextureLoader();
+
+        // Uranus textures
+        const uranusTexture = textureLoader.load('https://raw.githubusercontent.com/ankitjha2603/solar-system3D/refs/heads/main/image/uranus.jpg');
+        const uranusRingColorMap = textureLoader.load('https://planetpixelemporium.com/images/mappreviews/uranusringcolour.jpg');
+        const uranusRingTransparencyMap = textureLoader.load('https://planetpixelemporium.com/images/mappreviews/uranusringtrans.jpg');
+
+        // Uranus geometry and material
+        const uranusGeometry = new THREE.SphereGeometry(5, 50, 50);
+        const uranusMaterial = new THREE.MeshStandardMaterial({
+            map: uranusTexture,
+        });
+        const uranus = new THREE.Mesh(uranusGeometry, uranusMaterial);
+        scene.add(uranus);
+
+        // Uranus rings
+        const uranusRingGeometry = new THREE.RingGeometry(7, 12, 64);
+        const uranusRingMaterial = new THREE.MeshBasicMaterial({
+            map: uranusRingColorMap,
+            alphaMap: uranusRingTransparencyMap,
+            side: THREE.DoubleSide,
+            transparent: true,
+        });
+        const uranusRings = new THREE.Mesh(uranusRingGeometry, uranusRingMaterial);
+        uranusRings.rotation.x = Math.PI / 2; // Rotate rings to align with the planet
+        scene.add(uranusRings);
+
+        // Light source (Sun)
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1);
+        sunLight.position.set(10, 10, 10);
+        scene.add(sunLight);
+
+        // Background stars
+        function addStar() {
+            const starGeometry = new THREE.SphereGeometry(Math.random() * 0.5, 8, 8);
+            const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            const star = new THREE.Mesh(starGeometry, starMaterial);
+
+            star.position.set(
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000,
+                (Math.random() - 0.5) * 2000
+            );
+
+            scene.add(star);
+        }
+
+        for (let i = 0; i < 500; i++) {
+            addStar();
+        }
+
+        // Camera position
+        camera.position.z = 20;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate Uranus and its rings
+            uranus.rotation.y += 0.005;
+            uranusRings.rotation.z += 0.001;
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Language switcher functionality
+        const translations = {
+            en: {
+                title: "Uranus",
+                subtitle: "أورانوس",
+                info: [
+                    "🔄 Rotates on its side, making it unique.",
+                    "🧪 Its atmosphere contains hydrogen, helium, and methane.",
+                    "❄️ Features extremely low temperatures.",
+                    "🪐 Number of moons: 27.",
+                    "💫 Number of rings: 13."
+                ],
+                backButton: "Back to Solar System"
+            },
+            ar: {
+                title: "أورانوس",
+                subtitle: "Uranus",
+                info: [
+                    "🔄 يدور على جانبه، مما يجعله مميزًا.",
+                    "🧪 غلافه الجوي يحتوي على الهيدروجين والهيليوم والميثان.",
+                    "❄️ يتميز بدرجات حرارة منخفضة جدًا.",
+                    "🪐 عدد الأقمار: 27.",
+                    "💫 عدد الحلقات: 13."
+                ],
+                backButton: "العودة إلى النظام الشمسي"
+            },
+            es: {
+                title: "Urano",
+                subtitle: "أورانوس",
+                info: [
+                    "🔄 Gira de lado, lo que lo hace único.",
+                    "🧪 Su atmósfera contiene hidrógeno, helio y metano.",
+                    "❄️ Presenta temperaturas extremadamente bajas.",
+                    "🪐 Número de lunas: 27.",
+                    "💫 Número de anillos: 13."
+                ],
+                backButton: "Volver al Sistema Solar"
+            },
+            fr: {
+                title: "Uranus",
+                subtitle: "أورانوس",
+                info: [
+                    "🔄 Tourne sur le côté, ce qui le rend unique.",
+                    "🧪 Son atmosphère contient de l'hydrogène, de l'hélium et du méthane.",
+                    "❄️ Présente des températures extrêmement basses.",
+                    "🪐 Nombre de lunes: 27.",
+                    "💫 Nombre d'anneaux: 13."
+                ],
+                backButton: "Retour au Système Solaire"
+            },
+            zh: {
+                title: "天王星",
+                subtitle: "أورانوس",
+                info: [
+                    "🔄 侧向旋转，使其独特。",
+                    "🧪 其大气层含有氢、氦和甲烷。",
+                    "❄️ 具有极低的温度。",
+                    "🪐 卫星数量: 27。",
+                    "💫 环数量: 13。"
+                ],
+                backButton: "返回太阳系"
+            }
+        };
+
+        let currentLanguage = 'en';
+
+        function updateLanguage(lang) {
+            currentLanguage = lang;
+            const translation = translations[lang];
+            document.querySelector('h1').innerText = translation.title;
+            document.querySelector('h2').innerText = translation.subtitle;
+            const infoList = document.querySelectorAll('ul p');
+            translation.info.forEach((info, index) => {
+                infoList[index].innerText = info;
+            });
+            document.querySelector('a').innerText = translation.backButton;
+            const container = document.querySelector('.container');
+            if (lang === 'ar') {
+                container.style.textAlign = 'right';
+            } else {
+                container.style.textAlign = 'left';
+            }
+        }
+
+        document.getElementById('languageSelect').addEventListener('change', (event) => {
+            const newLanguage = event.target.value;
+            updateLanguage(newLanguage);
+        });
+
+        // Set default language to Arabic
+        updateLanguage('ar');
+    </script>
+</body>
+
+</html>
